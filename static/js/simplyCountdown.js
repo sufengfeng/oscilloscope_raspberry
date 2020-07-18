@@ -420,7 +420,7 @@ option = {
                         }
                       }
                       // 创建请求
-                      xhr.open('get',"http://127.0.0.1:8001/gettemp",true);
+                      xhr.open('get',"http://192.168.1.36:8080/getdata",true);
                       //发送请求
                       xhr.send();
 
