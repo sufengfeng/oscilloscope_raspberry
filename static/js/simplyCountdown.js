@@ -19,32 +19,32 @@ function randomData() {
     return [{
         name:"cpu",
         value: [
-            obj.message_id,
-            obj.cpu_temp.toFixed(2)
+            obj.messageID,
+            obj.CH00
         ]
     },{
         name:"温度",
         value: [
-            obj.message_id,
-            obj.temperature
+            obj.messageID,
+            obj.CH01
         ]
     },{
         name:"华氏温度",
         value: [
-            obj.message_id,
-            obj.temperature_F.toFixed(2)
+            obj.messageID,
+            obj.CH02
         ]
     },{
         name:"湿度",
         value: [
-            obj.message_id,
-            obj.humidity
+            obj.messageID,
+            obj.CH03
         ]
     },{
         name:"DS18b20",
         value: [
-            obj.message_id,
-            obj.t18b20_temp
+            obj.messageID,
+            obj.reverse
         ]
     }];
 }
@@ -400,22 +400,22 @@ option = {
 
                          obj =JSON.parse(result)
 
-                        fullCountDown.days.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.message_id;
+                        fullCountDown.days.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.messageID;
                         fullCountDown.days.word.textContent = "消息ID";
 
-                        fullCountDown.hours.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.cpu_temp.toFixed(2)+"℃";
+                        fullCountDown.hours.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH00+"℃";
                         fullCountDown.hours.word.textContent = "cpu温度";
 
-                        fullCountDown.minutes.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.temperature+"℃";
+                        fullCountDown.minutes.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.CH01+"℃";
                         fullCountDown.minutes.word.textContent = "温度";
 
-                         fullCountDown.seconds.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.temperature_F.toFixed(2)+"F";
+                         fullCountDown.seconds.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.CH02+"F";
                         fullCountDown.seconds.word.textContent = "华氏温度";
 
-                        fullCountDown.msg_id.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.humidity+"%";
+                        fullCountDown.msg_id.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH03+"%";
                         fullCountDown.msg_id.word.textContent = "湿度";
 
-                        fullCountDown.cpu_temp.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.t18b20_temp;
+                        fullCountDown.cpu_temp.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.reverse;
                         fullCountDown.cpu_temp.word.textContent = "DS18b20";
                         }
                       }
@@ -455,8 +455,8 @@ setInterval(function () {
 
 var dom = document.getElementById("dynamic-display");
     var myChart = echarts.init(dom);
-    if(obj.message_id>2000)
-        option.xAxis.min=obj.message_id-800;
+    if(obj.messageID>2000)
+        option.xAxis.min=obj.messageID-800;
     myChart.setOption(option, true);
 
     var dataObj = randomData();

@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html style="height: 100%">
+   <head>
+       <meta charset="utf-8">
+   </head>
+   <body style="height: 100%; margin: 0">
+       <div id="container" style="height: 100%"></div>
+       <script src="../static/js/jquery.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/echarts.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-gl/dist/echarts-gl.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts-stat/dist/ecStat.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/dataTool.min.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/china.js"></script>
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/map/js/world.js"></script>
+       <script type="text/javascript" src="https://api.map.baidu.com/api?v=2.0&ak=AtlV92RhKRA01xWjET9sdqWyDR9WEqSL&__ec_v__=20190126"></script>
+       
+       <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/echarts/dist/extension/bmap.min.js"></script>
+
+
+       <script type="text/javascript">
+       
+
+var dom = document.getElementById("container");
+var myChart = echarts.init(dom);
+var app = {};
+option = null;
+
+    var data=[];
+    var obj_now=new Date();
+    var second_C=obj_now.getSeconds();
+    var milliSecond_C=obj_now.getMilliseconds();
+    var minutes=obj_now.getMinutes();
+    var second=second_C-10;
+    var milliSecond=milliSecond_C;
+    var value=0;
+    for(var i=0;i<10000;i++){
+        var data_tmp=[minutes+'/'+second+'/'+milliSecond,value];
+        value++;
+        if(value>500){
+            value=0;            
+        }
+        milliSecond++;
+        if(milliSecond>=1000){
+            milliSecond=0;
+            second++;
+        }
+        data.push(data_tmp)
+    }
+
+    //var data=[["2000-06-05",116],["2000-06-06",129],["2000-06-07",135],["2000-06-08",86],["2000-06-09",73],["2000-06-10",85]]
+    myChart.setOption(option = {
+        title: {
+            text: 'Beijing AQI'
+        },
+        tooltip: {
+            trigger: 'axis'
+        },
+        xAxis: {
+            data: data.map(function (item) {
+                return item[0];
+            })
+        },
+        yAxis: {
+            splitLine: {
+                show: false
+            }
+        },
+        toolbox: {
+            left: 'center',
+            feature: {
+                dataZoom: {
+                    yAxisIndex: 'none'
+                },
+                restore: {},
+                saveAsImage: {}
+            }
+        },
+        dataZoom: [{
+            startValue: '2014-06-01'
+        }, {
+            type: 'inside'
+        }],
+        visualMap: {
+            top: 10,
+            right: 10,
+            pieces: [{
+                gt: 0,
+                lte: 50,
+                color: '#096'
+            }, {
+                gt: 50,
+                lte: 100,
+                color: '#ffde33'
+            }, {
+                gt: 100,
+                lte: 150,
+                color: '#ff9933'
+            }, {
+                gt: 150,
+                lte: 200,
+                color: '#FF99CC'
+            }, {
+                gt: 200,
+                lte: 250,
+                color: '#00FF00'
+            }, {
+                gt: 250,
+                lte: 300,
+                color: '#cc0033'
+            }, {
+                gt: 300,
+                lte: 350,
+                color: '#ff9933'
+            }, {
+                gt: 350,
+                lte: 400,
+                color: '#0099FF'
+            }, {
+                gt: 400,
+                lte: 450,
+                color: '#660099'
+            }, {
+                gt: 450,
+                lte: 500,
+                color: '#cc0033'
+            }, {
+                gt: 500,
+                color: '#7e0023'
+            }],
+            outOfRange: {
+                color: '#999'
+            }
+        }
+,
+        series: {
+            name: 'Beijing AQI',
+            type: 'line',
+            data: data.map(function (item) {
+                return item[1];
+            }),
+            markLine: {
+                silent: true,
+                data: [{
+                    yAxis: 50
+                }, {
+                    yAxis: 100
+                }, {
+                    yAxis: 150
+                }, {
+                    yAxis: 200
+                }, {
+                    yAxis: 250
+                }, {
+                    yAxis: 300
+                }, {
+                    yAxis: 350
+                }, {
+                    yAxis: 400
+                }, {
+                    yAxis: 450
+                }]
+            }
+        }
+    });
+
+if (option && typeof option === "object") {
+    myChart.setOption(option, true);
+}
+var channel=0;
+var period=20;
+//update 
+setInterval(function () {
+    jQuery.ajax({
+        url: "/getchannel/?channel="+channel+"&period="+period,
+        type: "get",
+        dataType: "text",
+        async: true,
+        success: function(dataRet){
+            var obj_now=new Date();
+            var second_C=obj_now.getSeconds();
+            var milliSecond_C=obj_now.getMilliseconds();
+            var minutes=obj_now.getMinutes()
+            var second=second_C-(period/1000);
+            var milliSecond=milliSecond_C-(period%1000);
+            var jsarr=JSON.parse(dataRet)
+            for(var i=0;i<jsarr.length;i++){
+                var data_tmp=[minutes+'/'+second+'/'+milliSecond,jsarr[i]];
+                milliSecond++;
+                if(milliSecond>=1000){
+                    milliSecond=0;
+                    second++;
+                }
+                data.shift();
+                data.push(data_tmp)
+            }
+            myChart.setOption({
+                xAxis:{
+                    data: data
+                },
+                series: [{
+                    data: data
+                }]
+            });
+            // console.log(data);
+            
+        }
+    });
+
+}, period);
+       </script>
+   </body>
+</html>
