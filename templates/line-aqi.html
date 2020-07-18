@@ -193,15 +193,22 @@ setInterval(function () {
                 data.shift();
                 data.push(data_tmp)
             }
+            // option.xAxis.data=data;;
+            // option.series.data=data;
             myChart.setOption({
                 xAxis:{
-                    data: data
+                    data:   data.map(function (item) {
+                                return item[0];
+                            })
                 },
                 series: [{
-                    data: data
+                    data:   data.map(function (item) {
+                                return item[1];
+                            })
                 }]
             });
-            // console.log(data);
+
+            console.log(data);
             
         }
     });
