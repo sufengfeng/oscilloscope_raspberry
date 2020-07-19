@@ -13,35 +13,36 @@
 
 var obj ;
 var j=0;
+var timerPeriod=20;
 function randomData() {
 //{"temperature": "25.7", "cpu_temp": 51.121, "humidity": "31.0", "t18b20_temp": 1, "temperature_F": 78.25999999999999, "message_id": 29893}
     j = j+1;
     return [{
-        name:"cpu",
+        name:"CH00",
         value: [
             obj.messageID,
             obj.CH00
         ]
     },{
-        name:"温度",
+        name:"CH01",
         value: [
             obj.messageID,
             obj.CH01
         ]
     },{
-        name:"华氏温度",
+        name:"CH02",
         value: [
             obj.messageID,
             obj.CH02
         ]
     },{
-        name:"湿度",
+        name:"CH03",
         value: [
             obj.messageID,
             obj.CH03
         ]
     },{
-        name:"DS18b20",
+        name:"REVERSE",
         value: [
             obj.messageID,
             obj.reverse
@@ -65,7 +66,7 @@ option = {
         }
     },
     legend: {
-        data: ['CPU', '温度', '华氏温度', '湿度', 'DS18b20'],
+        data: ['CH00', 'CH01', 'CH02', 'CH03', 'REVERSE'],
         textStyle: {
             color: '#ccc'
         },
@@ -114,35 +115,35 @@ option = {
     },
     series: [{
 
-        name: 'CPU',
+        name: 'CH00',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
         data: data[0],
         },
     {
-        name: '温度',
+        name: 'CH01',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
         data: data[1],
 
     },{
-        name: '华氏温度',
+        name: 'CH02',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
         data: data[2],
         },
     {
-        name: '湿度',
+        name: 'CH03',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
         data: data[3],
 
     },{
-        name: 'DS18b20',
+        name: 'REVERSE',
         type: 'line',
         showSymbol: false,
         hoverAnimation: false,
@@ -277,7 +278,7 @@ option = {
                 onEnd: function () {
                     return;
                 },
-                refresh: 500,
+                refresh: timerPeriod,
                 inlineClass: 'simply-countdown-inline',
                 sectionClass: 'simply-section',
                 amountClass: 'simply-amount',
@@ -319,7 +320,7 @@ option = {
         }
 
         Array.prototype.forEach.call(cd, function (countdown) {
-            var fullCountDown = createElements(parameters, countdown),
+		 var fullCountDown = createElements(parameters, countdown),
                 refresh;
 
             refresh = function () {
@@ -389,40 +390,42 @@ option = {
                         seconds + ' ' + secondWord + '.';
 
                 } else {
-                      var xhr=new XMLHttpRequest();
-                      //接受响应
-                      xhr.onreadystatechange=function(){
-                        if(xhr.readyState == 4 && xhr.status == 200){
-                            var result=xhr.response;
-                           //在这里面写就行了，你打印出来response
-                           //console.log(result);
+
+var xhr=new XMLHttpRequest();
+//接受响应
+xhr.onreadystatechange=function(){
+if(xhr.readyState == 4 && xhr.status == 200){
+var result=xhr.response;
+//在这里面写就行了，你打印出来response
+//console.log(result);
 
 
-                         obj =JSON.parse(result)
+obj =JSON.parse(result)
 
-                        fullCountDown.days.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.messageID;
-                        fullCountDown.days.word.textContent = "消息ID";
+fullCountDown.days.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.messageID;
+fullCountDown.days.word.textContent = "消息ID";
 
-                        fullCountDown.hours.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH00+"℃";
-                        fullCountDown.hours.word.textContent = "cpu温度";
+fullCountDown.hours.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH00+"℃";
+fullCountDown.hours.word.textContent = "cpu温度";
 
-                        fullCountDown.minutes.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.CH01+"℃";
-                        fullCountDown.minutes.word.textContent = "温度";
+fullCountDown.minutes.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.CH01+"℃";
+fullCountDown.minutes.word.textContent = "温度";
 
-                         fullCountDown.seconds.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.CH02+"F";
-                        fullCountDown.seconds.word.textContent = "华氏温度";
+fullCountDown.seconds.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.CH02+"F";
+fullCountDown.seconds.word.textContent = "华氏温度";
 
-                        fullCountDown.msg_id.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH03+"%";
-                        fullCountDown.msg_id.word.textContent = "湿度";
+fullCountDown.msg_id.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH03+"%";
+fullCountDown.msg_id.word.textContent = "湿度";
 
-                        fullCountDown.cpu_temp.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.reverse;
-                        fullCountDown.cpu_temp.word.textContent = "DS18b20";
-                        }
-                      }
-                      // 创建请求
-                      xhr.open('get',"http://192.168.1.36:8080/getdata",true);
-                      //发送请求
-                      xhr.send();
+fullCountDown.cpu_temp.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.reverse;
+fullCountDown.cpu_temp.word.textContent = "DS18b20";
+}
+}
+// 创建请求
+xhr.open('get',"/getalldata",true);
+//发送请求
+xhr.send();
+
 
                 }
             };
@@ -453,28 +456,29 @@ if (window.jQuery) {
 
 setInterval(function () {
 
-var dom = document.getElementById("dynamic-display");
-    var myChart = echarts.init(dom);
-    if(obj.messageID>2000)
-        option.xAxis.min=obj.messageID-800;
-    myChart.setOption(option, true);
+			var dom = document.getElementById("dynamic-display");
+		    	var myChart = echarts.init(dom);
 
-    var dataObj = randomData();
-    for (i = 0; i < 5; i++) {
-        data[i].push(dataObj[i]);
-     }
-    myChart.setOption({
-        series: [{
-            data: data[0]
-        },{
-            data: data[1]
-        },{
-            data: data[2]
-        },{
-            data: data[3]
-        },{
-            data: data[4]
-        }]
-    });
+				//updata XAxis YAxis
+			    if(obj.messageID>1000)
+				option.xAxis.min=obj.messageID-200;
+			    myChart.setOption(option, true);
 
-}, 1000);
+			    var dataObj = randomData();
+			    for (i = 0; i < 5; i++) {
+				data[i].push(dataObj[i]);
+			     }
+			    myChart.setOption({
+				series: [{
+				    data: data[0]
+				},{
+				    data: data[1]
+				},{
+				    data: data[2]
+				},{
+				    data: data[3]
+				},{
+				    data: data[4]
+				}]
+			    });
+}, timerPeriod);
