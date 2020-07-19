@@ -11,9 +11,11 @@
  */
  var data = [[],[],[],[],[]];
 
-var obj ;
+var obj="None" ;
 var j=0;
 var timerPeriod=20;
+var windowTimerPeriod=300;
+var MAX_LEN=1000;
 function randomData() {
 //{"temperature": "25.7", "cpu_temp": 51.121, "humidity": "31.0", "t18b20_temp": 1, "temperature_F": 78.25999999999999, "message_id": 29893}
     j = j+1;
@@ -278,7 +280,7 @@ option = {
                 onEnd: function () {
                     return;
                 },
-                refresh: timerPeriod,
+                refresh: windowTimerPeriod,
                 inlineClass: 'simply-countdown-inline',
                 sectionClass: 'simply-section',
                 amountClass: 'simply-amount',
@@ -391,42 +393,25 @@ option = {
 
                 } else {
 
-var xhr=new XMLHttpRequest();
-//接受响应
-xhr.onreadystatechange=function(){
-if(xhr.readyState == 4 && xhr.status == 200){
-var result=xhr.response;
-//在这里面写就行了，你打印出来response
-//console.log(result);
+			if(obj!="None"){
+				fullCountDown.days.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.messageID;
+				fullCountDown.days.word.textContent = "消息ID";
 
+				fullCountDown.hours.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH00;
+				fullCountDown.hours.word.textContent = "CH00";
 
-obj =JSON.parse(result)
+				fullCountDown.minutes.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.CH01;
+				fullCountDown.minutes.word.textContent = "CH01";
 
-fullCountDown.days.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.messageID;
-fullCountDown.days.word.textContent = "消息ID";
+				fullCountDown.seconds.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.CH02;
+				fullCountDown.seconds.word.textContent = "CH02";
 
-fullCountDown.hours.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH00+"℃";
-fullCountDown.hours.word.textContent = "cpu温度";
+				fullCountDown.msg_id.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH03;
+				fullCountDown.msg_id.word.textContent = "CH03";
 
-fullCountDown.minutes.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.CH01+"℃";
-fullCountDown.minutes.word.textContent = "温度";
-
-fullCountDown.seconds.amount.textContent = (parameters.zeroPad && days.toString().length < 2 ? '0' : '') + obj.CH02+"F";
-fullCountDown.seconds.word.textContent = "华氏温度";
-
-fullCountDown.msg_id.amount.textContent = (parameters.zeroPad && hours.toString().length < 2 ? '0' : '') + obj.CH03+"%";
-fullCountDown.msg_id.word.textContent = "湿度";
-
-fullCountDown.cpu_temp.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.reverse;
-fullCountDown.cpu_temp.word.textContent = "DS18b20";
-}
-}
-// 创建请求
-xhr.open('get',"/getalldata",true);
-//发送请求
-xhr.send();
-
-
+				fullCountDown.cpu_temp.amount.textContent = (parameters.zeroPad && minutes.toString().length < 2 ? '0' : '') + obj.reverse;
+				fullCountDown.cpu_temp.word.textContent = "REVERSE";
+			}
                 }
             };
 
@@ -453,32 +438,62 @@ if (window.jQuery) {
         };
     }(jQuery, simplyCountdown));
 }
+                var button = document.getElementById("scroll_id");
+                var timerFlag=true;
+                function scroll_change(){
+                       timerFlag=!timerFlag;
+                        SetTimerState(timerFlag);
+                       if(timerFlag){
+                       
+                             button.value="Stop";
+                       }else
+                       {
 
+                             button.value="Start";
+                       }
+               }
 setInterval(function () {
+if(!timerFlag)
+	return ;
+    jQuery.ajax({
+        url: "/getalldata",
+        type: "get",
+        dataType: "text",
+        async: true,
+        success: function(result){        
+		var last_obj=obj;
+		obj =JSON.parse(result)
+		if(last_obj.messageID>obj.messageID){
+			for (i = 0; i < 5; i++) {
+		                data[i].length=0;
+		        }
+		}
+		var dom = document.getElementById("dynamic-display");
+		var myChart = echarts.init(dom);
+		
+		option.xAxis.max=obj.messageID;
+		option.xAxis.min=obj.messageID-MAX_LEN;
+		if(option.xAxis.min<0)option.xAxis.min=0;
 
-			var dom = document.getElementById("dynamic-display");
-		    	var myChart = echarts.init(dom);
+		myChart.setOption(option, true);
 
-				//updata XAxis YAxis
-			    if(obj.messageID>1000)
-				option.xAxis.min=obj.messageID-200;
-			    myChart.setOption(option, true);
-
-			    var dataObj = randomData();
-			    for (i = 0; i < 5; i++) {
-				data[i].push(dataObj[i]);
-			     }
-			    myChart.setOption({
-				series: [{
-				    data: data[0]
-				},{
-				    data: data[1]
-				},{
-				    data: data[2]
-				},{
-				    data: data[3]
-				},{
-				    data: data[4]
-				}]
-			    });
+		var dataObj = randomData();
+		for (i = 0; i < 5; i++) {
+			data[i].push(dataObj[i]);
+		}
+		myChart.setOption({
+		series: [{
+		    data: data[0]
+		},{
+		    data: data[1]
+		},{
+		    data: data[2]
+		},{
+		    data: data[3]
+		},{
+		    data: data[4]
+		}]
+		});
+        }
+    });
 }, timerPeriod);
